@@ -15,20 +15,25 @@ const is2numeEven = (_x, _y) => {
 const is2numeEvenOneCom = (_x, _y) => {
     is2numeEven(_x, _y);
 }
- exports.readFile = async (_path) => {
+exports.readFile = async (_path) => {
     return await fs.readFile(_path, { encoding: 'utf-8' });
 };
-exports.writeToFile = async (_path,_content) => {
+exports.writeToFile = async (_path, _content) => {
     // if(fs.existsSync(_path))
     // return null;TODO
-    return await fs.writeFile(_path,_content);
+    try {
+        await fs.writeFileSync(_path, _content, { encoding: 'utf8', flag: 'w', overwrite: false });
+        return _path;
+    } catch (error) {
+        return null;
+    }
 };
 
 const readFileWithoutAwait = async (_fileRef) => {
-  return  await readFile(_fileRef);
+    return await readFile(_fileRef);
 }
 const readFileWithoutAsynch = async (_fileRef) => {
-   return await readFile(_fileRef);
+    return await readFile(_fileRef);
 }
 const append2Files = async (_fileRef1, _fileRef2) => {
     let textFile1 = await readFile(_fileRef1);

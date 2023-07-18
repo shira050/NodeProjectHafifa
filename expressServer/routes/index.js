@@ -35,7 +35,11 @@ router.post("/write/:filePath([\\w \\W]+)", async (req, res) => {
 //  const path = process.env.EXSPRESS_SERVER_URL || "http://localhost:3000/public";
   let resFileText = await writeToFile(path+filePath, content);
   console.log(resFileText);
-  resFileText && res.status(200).json({ msg: resFileText })
-  res.status(400).json({ msg: "file already exist!" })
+  if(resFileText){
+    res.status(200).json({ msg: resFileText })
+  }
+else{
+  res.status(400).json({ msg: "file already exist or anotherr error!" })
+}  
 })
 module.exports = router;
