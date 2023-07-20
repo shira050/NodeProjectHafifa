@@ -5,10 +5,11 @@ const fs = require("fs");
 require("dotenv").config();
 const axios = require("axios");
 const fsPromise = require('fs/promises')
+const path = require("path");
 
 let intervalId;
 const pathFolder = process.env.FOLDER_URL;
-const pathServerWriteFunction = process.env.EXSPRESS_SERVER_URL ;
+const pathServerWriteFunction = process.env.EXSPRESS_SERVER_URL;
 const maxBadRequest = process.env.MAX_SENDING;
 
 //create interval for rotate
@@ -32,7 +33,7 @@ const renameFileByBadReqest = async (file) => {
   const lastExtension = getLastExeption(file);
   let countBadSend = 0;
   let newFileName = "";
-  if (isNum(lastExtension&&lastExtension)) {
+  if (isNum(lastExtension && lastExtension)) {
     countBadSend = (Number(lastExtension) + 1);
     newFileName = file.replace("." + lastExtension, "." + countBadSend);
   }
@@ -42,20 +43,20 @@ const renameFileByBadReqest = async (file) => {
   }
   await fs.renameSync(pathFolder + file, pathFolder + newFileName);
 }
-const renameFileDeleteCountReqest =  (file,lastExtension) => {
+const renameFileDeleteCountReqest = (file, lastExtension) => {
   if (isNum(lastExtension)) {
-    return nameWithoutLastExtention = file.substring(0, (file.lastIndexOf(".")));  
+    return nameWithoutLastExtention = file.substring(0, (file.lastIndexOf(".")));
   }
   return file;
 }
 
 const renameFileByCopy = async (file) => {
-  let fileNameWithoutCount=renameFileDeleteCountReqest(file,getLastExeption(file))
+  let fileNameWithoutCount = renameFileDeleteCountReqest(file, getLastExeption(file))
   let text = await fsPromise.readFile(pathFolder + file.toString(), { encoding: 'utf-8' });
   let res = await axios.post(`${pathServerWriteFunction}write/${fileNameWithoutCount}`, { "content": text });
   console.log(res);
   if (res && res.status == 200) {
-    copiedName = file.replace( getLastExeption(file), "copied");
+    copiedName = file.replace(getLastExeption(file), "copied");
     await fs.renameSync(pathFolder + file, pathFolder + copiedName);
   } else {
     console.log("copy error");
@@ -70,14 +71,23 @@ const checkMaxRequestLimit = (file) => {
   }
   return true;
 }
+
+const getOnlyFiles = async (pathFolder) => {
+  var files = await fs.readdirSync(pathFolder);
+  console.log(" Files:", files);
+  return files
+    .filter(file => fs.statSync(path.join(pathFolder, file)).isFile())
+    .map(file => path.join(file));
+}
+
 //main algorithm
 const readAllFolderText = async () => {
   let currentFile;
-  var files = await fs.readdirSync(pathFolder);
-// files=Promise.all(files.filter(async file=>{return await fs.Stats(pathFolder+file).isFile()}));
-console.log(files);
-  // const onlyFiles = files.filter(de => !de.isDirectory()).map(de => `${pathFolder}/${de.name}`);
-  await Promise.all(files.map(async (file) => {
+
+  const onlyFiles = await getOnlyFiles(pathFolder);
+  console.log("Only Files:", onlyFiles);
+
+  await Promise.all(onlyFiles.map(async (file) => {
     try {
       currentFile = file;
       let extension = getLastExeption(file);
