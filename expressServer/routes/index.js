@@ -28,7 +28,7 @@ router.get("/read/:filePath([\\w \\W]+)", async (req, res) => {
 router.post("/write/:filePath([\\w \\W]+)", async (req, res) => {
     let filePath = req.params.filePath;
   let content = req.body.content;
-  const path =process.env.EXSPRESS_SERVER_URL || 'C:/Users/Shira/Documents/nodeProject/expressServer/public/';
+  const path =process.env.EXSPRESS_SERVER_URL;
   console.log(path);
   let resFileText = await writeToFile(path+filePath, content);
   console.log(resFileText);

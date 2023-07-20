@@ -2,14 +2,14 @@ const express = require("express");
 const { readFile, writeToFile } = require("../../js/tasks");
 const router = express.Router();
 const fs = require("fs");
-require("dotenv").config;
+require("dotenv").config();
 const axios = require("axios");
 const fsPromise = require('fs/promises')
 
 let intervalId;
-const pathFolder = process.env.FOLDER_URL || "C:/Users/Shira/Documents/nodeProject/NodeServer/public/";
-const pathServerWriteFunction = process.env.EXSPRESS_SERVER_URL || "http://localhost:3000/";
-const maxBadRequest = process.env.MAX_SENDING || 10;
+const pathFolder = process.env.FOLDER_URL;
+const pathServerWriteFunction = process.env.EXSPRESS_SERVER_URL ;
+const maxBadRequest = process.env.MAX_SENDING;
 
 //create interval for rotate
 if (intervalId) {
@@ -74,8 +74,10 @@ const checkMaxRequestLimit = (file) => {
 const readAllFolderText = async () => {
   let currentFile;
   var files = await fs.readdirSync(pathFolder);
-  const onlyFiles = files.filter(de => !de.isDirectory()).map(de => `${dirPath}/${de.name}`);
-  await Promise.all(onlyFiles.map(async (file) => {
+// files=Promise.all(files.filter(async file=>{return await fs.Stats(pathFolder+file).isFile()}));
+console.log(files);
+  // const onlyFiles = files.filter(de => !de.isDirectory()).map(de => `${pathFolder}/${de.name}`);
+  await Promise.all(files.map(async (file) => {
     try {
       currentFile = file;
       let extension = getLastExeption(file);
